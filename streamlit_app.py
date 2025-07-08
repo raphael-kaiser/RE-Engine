@@ -91,8 +91,20 @@ with col2:
             with st.spinner("🔄 Processing property... This may take 30-60 seconds"):
                 # Get service account info from Streamlit secrets
                 service_account_info = None
-                if hasattr(st, 'secrets') and 'gcreds' in st.secrets:
-                    service_account_info = dict(st.secrets.gcreds)
+                try:
+                    if hasattr(st, 'secrets') and 'gcreds' in st.secrets:
+                        service_account_info = dict(st.secrets.gcreds)
+                        st.write("✅ Service account credentials loaded from secrets")
+                    else:
+                        st.error("❌ No service account credentials found in Streamlit secrets")
+                        st.stop()
+                except Exception as e:
+                    st.error(f"❌ Error loading secrets: {str(e)}")
+                    st.stop()
+                
+                # Debug information
+                if service_account_info:
+                    st.write(f"🔧 Using service account: {service_account_info.get('client_email', 'Unknown')}")
                 
                 # Run the job
                 result = run_job(url, service_account_info)
@@ -118,6 +130,14 @@ with col2:
                 {result["error"]}
                 </div>
                 """, unsafe_allow_html=True)
+                
+                # Additional debugging info
+                st.write("🔧 **Debug Information:**")
+                st.write(f"- OpenAI API Key: {'✅ Set' if os.getenv('OPENAI_API_KEY') else '❌ Not Set'}")
+                st.write(f"- Idealista API Key: {'✅ Set' if os.getenv('IDEALISTA_API_KEY') else '❌ Not Set'}")
+                if service_account_info:
+                    st.write(f"- Service Account Type: {service_account_info.get('type', 'Unknown')}")
+                    st.write(f"- Project ID: {service_account_info.get('project_id', 'Unknown')}")
 
 # Information section
 st.markdown("---")
@@ -160,10 +180,18 @@ Results are written to: <em>Raphael Project Selection 2025 → Business Cases 20
 </div>
 """, unsafe_allow_html=True)
 
-# Environment check (only shown in development)
-if os.getenv('STREAMLIT_ENV') != 'production':
-    with st.expander("🔧 Environment Status (Development Only)"):
-        st.write("**API Keys Status:**")
-        st.write(f"- OpenAI API Key: {'✅ Set' if os.getenv('OPENAI_API_KEY') else '❌ Not Set'}")
-        st.write(f"- Idealista API Key: {'✅ Set' if os.getenv('IDEALISTA_API_KEY') else '❌ Not Set'}")
-        st.write(f"- Google Sheets: {'✅ Available' if hasattr(st, 'secrets') and 'gcreds' in st.secrets else '❌ Not Configured'}") 
+# Environment check (always show for debugging)
+with st.expander("🔧 Environment Status"):
+    st.write("**API Keys Status:**")
+    st.write(f"- OpenAI API Key: {'✅ Set (' + os.getenv('OPENAI_API_KEY', '')[:20] + '...)' if os.getenv('OPENAI_API_KEY') else '❌ Not Set'}")
+    st.write(f"- Idealista API Key: {'✅ Set (' + os.getenv('IDEALISTA_API_KEY', '')[:20] + '...)' if os.getenv('IDEALISTA_API_KEY') else '❌ Not Set'}")
+    
+    if hasattr(st, 'secrets') and 'gcreds' in st.secrets:
+        gcreds = st.secrets.gcreds
+        st.write("**Google Sheets Configuration:**")
+        st.write(f"- Type: {gcreds.get('type', 'Unknown')}")
+        st.write(f"- Project ID: {gcreds.get('project_id', 'Unknown')}")
+        st.write(f"- Client Email: {gcreds.get('client_email', 'Unknown')}")
+        st.write(f"- Private Key: {'✅ Present' if gcreds.get('private_key') else '❌ Missing'}")
+    else:
+        st.write("- Google Sheets: ❌ Not Configured") 

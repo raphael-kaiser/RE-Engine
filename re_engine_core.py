@@ -54,19 +54,41 @@ def load_reform_costs():
         return []
 
 def get_gsheet_client(service_account_info=None):
-    """Get Google Sheets client using service account"""
-    if service_account_info:
-        # For Streamlit Cloud - use secrets
-        gc = gspread.service_account_from_dict(service_account_info)
-    else:
-        # For local development - use file
-        gc = gspread.service_account(filename='service_account.json')
-    return gc
+    """Get Google Sheets client using service account with proper error handling"""
+    try:
+        if service_account_info:
+            # For Streamlit Cloud - use secrets
+            if isinstance(service_account_info, dict) and service_account_info.get('type') == 'service_account':
+                # Ensure private_key is properly formatted
+                if 'private_key' in service_account_info:
+                    private_key = service_account_info['private_key']
+                    # Fix common private key formatting issues
+                    if not private_key.startswith('-----BEGIN PRIVATE KEY-----'):
+                        private_key = f"-----BEGIN PRIVATE KEY-----\n{private_key}\n-----END PRIVATE KEY-----\n"
+                    elif '\\n' in private_key:
+                        private_key = private_key.replace('\\n', '\n')
+                    service_account_info['private_key'] = private_key
+                
+                gc = gspread.service_account_from_dict(service_account_info)
+            else:
+                raise ValueError("Invalid service account format. Please check your Streamlit secrets configuration.")
+        else:
+            # For local development - use file
+            if os.path.exists('service_account.json'):
+                gc = gspread.service_account(filename='service_account.json')
+            else:
+                raise ValueError("No service account file found. Please create service_account.json for local development.")
+        return gc
+    except Exception as e:
+        raise Exception(f"Failed to authenticate with Google Sheets: {str(e)}")
 
 def get_worksheet(gc, sheet_name, tab_name):
-    sh = gc.open(sheet_name)
-    worksheet = sh.worksheet(tab_name)
-    return worksheet
+    try:
+        sh = gc.open(sheet_name)
+        worksheet = sh.worksheet(tab_name)
+        return worksheet
+    except Exception as e:
+        raise Exception(f"Failed to access worksheet '{tab_name}' in sheet '{sheet_name}': {str(e)}")
 
 def extract_property_code(url):
     return url.rstrip('/').split('/')[-1]

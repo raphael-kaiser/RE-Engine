@@ -99,6 +99,8 @@ client_secret*.json
 token.json
 *.pem
 *.key
+STREAMLIT_SECRETS.txt
+streamlit_secrets*.toml
 
 # IDE
 .vscode/
