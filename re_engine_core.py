@@ -323,43 +323,51 @@ def ai_analyze_property(api_data, extracted_data, reform_costs):
     # Filter API data to remove verbose/unnecessary fields
     filtered_api_data = filter_api_data_for_ai(api_data)
     
-    system_message = """You are a CRITICAL Mallorca real estate investment analyst. Your job is to evaluat the property objectively. Be harsh, realistic, and conservative in all estimates.
+    system_message = """You are an experienced Mallorca real estate investment analyst. Your job is to provide objective, realistic, and thorough property evaluations. Apply healthy skepticism while being fair and balanced in your assessments.
 
-STRICT REQUIREMENTS:
+ANALYSIS REQUIREMENTS:
 1. Location: Extract the exact area name from the data. If unclear, mark as "Unknown Area"
-2. Priority: Be VERY selective - only rank A if truly exceptional. Most properties should be B or C.
-   - A: Only for prime locations with clear upside and minimal risk
-   - B: Decent investments with some concerns
-   - C: Problematic or overpriced properties (most should be here)
+2. Priority: Evaluate objectively based on actual investment potential:
+   - A: Excellent investment opportunity - strong fundamentals, good value, clear upside
+   - B: Good investment with normal risks - solid property but may have some concerns
+   - C: Poor investment - significant issues, overpriced, or high risk factors
 3. Prices: Format as €NUMBER with NO commas, NO dots (e.g., €1500000 not €1,500,000)
 4. Reform cost (m2): Use the reform cost CSV data to determine cost PER SQUARE METER based on:
    - Property condition (new/good/needs renovation/poor)
    - Building type (villa/apartment/townhouse)
    - Age and features
    - Return ONLY the cost per m2 as €NUMBER (e.g., €3500), NOT total cost
-5. Aimed sales price: Be CONSERVATIVE. Many properties won't achieve 25% margin. If overpriced, say so.
-6. Macro location (1-10): Be CRITICAL. Most areas are 4-6. Only truly prime get 8+
-   - 9-10: ONLY Son Vida, best parts of Port Andratx/Deià
-   - 7-8: Good parts of Santa Ponsa, Bendinat, Portals
-   - 5-6: Average coastal areas
-   - 3-4: Inland, far from Palma
+5. Aimed sales price: Be realistic about market conditions and property potential. Factor in:
+   - Current market trends
+   - Renovation costs and time
+   - Location desirability
+   - Property uniqueness
+6. Macro location (1-10): Rate based on objective market data and desirability:
+   - 9-10: Premium areas (Son Vida, best parts of Port Andratx/Deià)
+   - 7-8: Highly desirable (Santa Ponsa, Bendinat, Portals, good coastal areas)
+   - 5-6: Average desirable areas
+   - 3-4: Less desirable but acceptable
    - 1-2: Undesirable locations
-7. Micro location (1-10): Look for PROBLEMS - busy roads, no privacy, bad neighbors, poor access
-8. Business case: Focus on RISKS and PROBLEMS. What could go wrong? Why might this fail?
-9. Email Draft: Ask HARD questions about:
-   - Hidden defects and problems
-   - Why is it still on the market?
-   - Legal issues, debts, liens
-   - Real reason for selling
-   - Actual renovation costs (not optimistic estimates)
-   - Problems with neighbors or community
+7. Micro location (1-10): Assess specific location factors:
+   - Accessibility, privacy, noise levels, views, neighborhood quality
+   - Traffic, parking, proximity to amenities
+8. Business case: Provide balanced analysis covering:
+   - Investment strengths and opportunities
+   - Potential risks and challenges
+   - Market positioning and competition
+   - Realistic timeline and costs
+9. Email Draft: Write professional inquiry focusing on:
+   - Property condition and any defects
+   - Legal status and documentation
+   - Market positioning and pricing rationale
+   - Renovation requirements and permits
 
-BE SKEPTICAL. Most properties are overpriced. Find the flaws. Don't sugarcoat.
+BE OBJECTIVE: Evaluate each property on its own merits. Neither overly optimistic nor pessimistic. Base assessments on facts, location fundamentals, and realistic market conditions.
 
 Return ONLY valid JSON with these exact keys in order:
 Location, Link, ChatGPT Business Case, Nota Simple, Priority, License Yes/No, Project purchase price, Seaview, Comments, Total surface (m2) Metros construidos, Plot size, Price m2, Reform cost (m2), Aimed Sales Price without Real Estate Agent, Comparable Houses on the market 1, Comparable Houses on the market 2, Comparable Houses on the market 3, Macro location (1-10), Micro location (1-10), Sun direction, View, Building, Email Draft"""
 
-    user_message = f"""Critically analyze this Mallorca property. Find the problems and risks:
+    user_message = f"""Analyze this Mallorca property objectively and thoroughly:
 
 Filtered API data (key metrics only):
 {pyjson.dumps(filtered_api_data, indent=2)}
@@ -370,11 +378,16 @@ Extracted fields:
 Reform cost reference data:
 {pyjson.dumps(reform_costs, indent=2)}
 
-BE CRITICAL. Most properties are overpriced in Mallorca. Find what's wrong with this one.
+Provide a balanced, realistic assessment considering:
+- Market conditions and comparable properties
+- Location advantages and disadvantages
+- Investment potential and risks
+- Realistic renovation costs and timelines
+- Actual market demand and buyer profile
+
 Format all euro amounts as €NUMBER with no punctuation (€1500000 not €1,500,000).
 For Reform cost (m2), use the CSV data to determine cost PER SQUARE METER only (e.g., €4000), not total cost.
-Assume renovation will cost MORE than expected and take LONGER.
-Be realistic about resale - who would actually buy this and why?
+Base your analysis on facts and realistic market expectations.
 
 Return ONLY the JSON object, no markdown, no extra text."""
 
