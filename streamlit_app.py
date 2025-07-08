@@ -102,9 +102,7 @@ with col2:
                     st.error(f"❌ Error loading secrets: {str(e)}")
                     st.stop()
                 
-                # Debug information
-                if service_account_info:
-                    st.write(f"🔧 Using service account: {service_account_info.get('client_email', 'Unknown')}")
+
                 
                 # Run the job
                 result = run_job(url, service_account_info)
