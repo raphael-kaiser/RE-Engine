@@ -1,0 +1,17 @@
+condition,building_type,age_range,cost_per_m2,description
+new,villa,0-5,2000,Modern villa in excellent condition - minimal renovation needed
+good,villa,6-15,3000,Well-maintained villa requiring light updates and modernization
+needs_renovation,villa,16-30,4500,Older villa requiring significant renovation and updates
+poor,villa,30+,6000,Villa in poor condition requiring extensive renovation
+new,apartment,0-5,1500,Modern apartment in excellent condition
+good,apartment,6-15,2500,Well-maintained apartment requiring light updates
+needs_renovation,apartment,16-30,3500,Older apartment requiring significant renovation
+poor,apartment,30+,5000,Apartment in poor condition requiring extensive renovation
+new,townhouse,0-5,1800,Modern townhouse in excellent condition
+good,townhouse,6-15,2800,Well-maintained townhouse requiring light updates
+needs_renovation,townhouse,16-30,4000,Older townhouse requiring significant renovation
+poor,townhouse,30+,5500,Townhouse in poor condition requiring extensive renovation
+new,penthouse,0-5,2500,Modern penthouse with premium finishes
+good,penthouse,6-15,3500,Well-maintained penthouse requiring updates
+needs_renovation,penthouse,16-30,5000,Older penthouse requiring significant renovation
+poor,penthouse,30+,7000,Penthouse in poor condition requiring luxury renovation 
